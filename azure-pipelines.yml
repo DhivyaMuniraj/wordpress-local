@@ -1,0 +1,38 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  azureSubscription: 'wordpress'
+  appName: 'wordpresslc'
+  resourceGroup: 'wordpresslc'
+  packagePath: '$(Build.ArtifactStagingDirectory)/wordpress.zip'
+
+steps:
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/wordpress.zip'
+    replaceExistingArchive: true
+
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: '$(azureSubscription)'
+    appType: 'webAppLinux'
+    appName: '$(appName)'
+    resourceGroupName: '$(resourceGroup)'
+    package: '$(packagePath)'
+
+- script: |
+    echo "Setting PHP version to 8.0"
+    az webapp config set --name $(appName) --resource-group $(resourceGroup) --linux-fx-version "PHP|8.0"
+  displayName: "Set PHP version for WordPress"
+
+- script: |
+    echo "Enabling MySQL extension"
+    az webapp config appsettings set --name $(appName) --resource-group $(resourceGroup) --settings WEBSITE_MYSQL_ENABLED=1
+  displayName: "Enable MySQL Extension for WordPress"
