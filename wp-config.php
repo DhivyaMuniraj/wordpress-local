@@ -29,7 +29,7 @@ define( 'DB_USER', 'wordpresslcc' );
 define( 'DB_PASSWORD', 'root@123' );
 
 /** Database hostname */
-define( 'DB_HOST', 'wordpresslcc.mysql.database.azure.com' );  wordpresslcc.mysql.database.azure.com
+define( 'DB_HOST', 'wordpresslcc.mysql.database.azure.com' );
 
 /** Database charset to use in creating database tables. */
 define( 'DB_CHARSET', 'utf8' );
