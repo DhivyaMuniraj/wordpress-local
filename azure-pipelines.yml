@@ -11,14 +11,22 @@ variables:
   packagePath: '$(Build.ArtifactStagingDirectory)/wordpress.zip'
 
 steps:
+# ✅ Create a 'wordpress' directory and move files inside it
+- script: |
+    mkdir -p $(Build.ArtifactStagingDirectory)/wordpress
+    cp -r $(System.DefaultWorkingDirectory)/* $(Build.ArtifactStagingDirectory)/wordpress/
+  displayName: "Create WordPress directory and copy files"
+
+# ✅ Archive the 'wordpress' directory into a zip file
 - task: ArchiveFiles@2
   inputs:
-    rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+    rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/wordpress'
     includeRootFolder: false
     archiveType: 'zip'
     archiveFile: '$(Build.ArtifactStagingDirectory)/wordpress.zip'
     replaceExistingArchive: true
 
+# ✅ Deploy the zip file to Azure App Service
 - task: AzureWebApp@1
   inputs:
     azureSubscription: '$(azureSubscription)'
@@ -27,7 +35,7 @@ steps:
     resourceGroupName: '$(resourceGroup)'
     package: '$(packagePath)'
 
-# ✅ Use AzureCLI@2 for PHP version setup
+# ✅ Set PHP version for WordPress
 - task: AzureCLI@2
   inputs:
     azureSubscription: '$(azureSubscription)'
@@ -38,7 +46,7 @@ steps:
       az webapp config set --name $(appName) --resource-group $(resourceGroup) --linux-fx-version "PHP|8.0"
   displayName: "Set PHP version for WordPress"
 
-# ✅ Use AzureCLI@2 for enabling MySQL extension
+# ✅ Enable MySQL extension
 - task: AzureCLI@2
   inputs:
     azureSubscription: '$(azureSubscription)'
